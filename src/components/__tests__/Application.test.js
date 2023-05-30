@@ -6,6 +6,8 @@ import Application from "components/Application";
 
 afterEach(cleanup);
 
-it("renders without crashing", () => {
-  render(<Application />);
+describe("testing app", () => {
+  it("renders without crashing", () => {
+    render(<Application />);
+  });
 });
