@@ -47,6 +47,7 @@ export function getInterviewersForDay(state, day) {
       result.push(interviewInfo);
     }
   }
+  // console.log(result);
   return result;
 }
 

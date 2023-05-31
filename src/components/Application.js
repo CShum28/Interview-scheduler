@@ -25,20 +25,49 @@ export default function Application(props) {
   const dailyAppointments = getAppointmentsForDay(state, state.day);
   const interviewers = getInterviewersForDay(state, state.day);
 
-  console.log("From getInterviewersForDay", interviewers);
+  // console.log("From getInterviewersForDay", interviewers);
 
   const setDay = (day) => setState((prev) => ({ ...prev, day }));
   // const setDays = (days) => setState((prev) => ({ ...prev, days }));
 
   const bookInterview = function (id, interview) {
-    console.log(id, interview);
+    // update the appointment's interview state
+    const appointment = {
+      ...state.appointments[id],
+      interview: { ...interview },
+    };
+
+    // update appointments of the id
+    const appointments = {
+      ...state.appointments,
+      [id]: appointment,
+    };
+
+    return axios.put(`/api/appointments/${id}`, { interview }).then(() =>
+      setState({
+        ...state,
+        appointments,
+      })
+    );
   };
 
-  const save = function (name, interviewer) {
-    const interview = {
-      student: name,
-      interviewer,
+  const cancelInterview = (id) => {
+    const appointment = {
+      ...state.appointments[id],
+      interview: null,
     };
+
+    const appointments = {
+      ...state.appointments,
+      [id]: appointment,
+    };
+
+    return axios.delete(`/api/appointments/${id}`).then(() =>
+      setState({
+        ...state,
+        appointments,
+      })
+    );
   };
 
   useEffect(() => {
@@ -57,13 +86,6 @@ export default function Application(props) {
       })
       .catch((err) => console.log(err));
   }, []);
-
-  // useEffect(() => {
-  //   axios.get(daysApi).then((response) => {
-  //     console.log(response);
-  //     setDays(response.data);
-  //   });
-  // }, []);
 
   return (
     <main className="layout">
@@ -94,6 +116,7 @@ export default function Application(props) {
               interview={interview}
               interviewers={interviewers}
               bookInterview={bookInterview}
+              cancelInterview={cancelInterview}
             />
           );
         })}
