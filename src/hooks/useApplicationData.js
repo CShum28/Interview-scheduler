@@ -1,7 +1,7 @@
-import axios from 'axios';
+import axios from "axios";
 import { useState, useEffect } from "react";
 
-export default function useApplicationData(){
+export default function useApplicationData() {
   const [state, setState] = useState({
     day: "Monday",
     days: [],
@@ -9,59 +9,124 @@ export default function useApplicationData(){
     interviewers: {},
   });
 
-  const appointmentObj = state.appointments
+  let appointmentOfDays;
 
-  for (const appointment in appointmentObj){
-    if (appointmentObj[appointment].interview === null){
-      console.log(appointmentObj[appointment])
+  for (const day of state.days) {
+    if (state.day === day.name) {
+      appointmentOfDays = day.appointments;
     }
   }
 
-  for (const day of state.days) {
-    console.log(`${day.name} has ${day.spots} spots`)
-  }
-  
   const setDay = (day) => setState((prev) => ({ ...prev, day }));
   // const setDays = (days) => setState((prev) => ({ ...prev, days }));
-  
+
   const bookInterview = function (id, interview) {
     // update the appointment's interview state
     const appointment = {
       ...state.appointments[id],
       interview: { ...interview },
     };
-  
+
     // update appointments of the id
     const appointments = {
       ...state.appointments,
       [id]: appointment,
     };
-  
-    return axios.put(`/api/appointments/${id}`, { interview }).then(() =>
+
+    return axios.put(`/api/appointments/${id}`, { interview }).then(() => {
+      const updateSpots = () => {
+        let spotCount = 0;
+
+        for (const appointment in appointments) {
+          if (appointmentOfDays.includes(Number(appointment))) {
+            if (appointments[appointment].interview === null) {
+              spotCount++;
+            }
+          }
+        }
+
+        return spotCount;
+      };
+
+      let dayUpdate = {};
+
+      for (const day of state.days) {
+        if (state.day === day.name) {
+          dayUpdate = {
+            ...day,
+            spots: updateSpots(),
+          };
+        }
+      }
+
+      const dayIndex = dayUpdate.id - 1;
+      const newDays = [
+        ...state.days.slice(0, dayIndex),
+        dayUpdate,
+        ...state.days.slice(dayIndex + 1),
+      ];
+
+      console.log(newDays);
+
       setState({
         ...state,
         appointments,
-      })
-    );
+        days: newDays,
+      });
+    });
   };
-  
+
   const cancelInterview = (id) => {
     const appointment = {
       ...state.appointments[id],
       interview: null,
     };
-  
+
     const appointments = {
       ...state.appointments,
       [id]: appointment,
     };
-  
-    return axios.delete(`/api/appointments/${id}`).then(() =>
+
+    return axios.delete(`/api/appointments/${id}`).then(() => {
+      const updateSpots = () => {
+        let spotCount = 0;
+
+        for (const appointment in appointments) {
+          if (appointmentOfDays.includes(Number(appointment))) {
+            if (appointments[appointment].interview === null) {
+              spotCount++;
+            }
+          }
+        }
+
+        return spotCount;
+      };
+
+      let dayUpdate = {};
+
+      for (const day of state.days) {
+        if (state.day === day.name) {
+          dayUpdate = {
+            ...day,
+            spots: updateSpots(),
+          };
+        }
+      }
+
+      const dayIndex = dayUpdate.id - 1;
+      const newDays = [
+        ...state.days.slice(0, dayIndex),
+        dayUpdate,
+        ...state.days.slice(dayIndex + 1),
+      ];
+
+      console.log(newDays);
       setState({
         ...state,
         appointments,
-      })
-    );
+        days: newDays
+      });
+    });
   };
 
   const daysApi = `/api/days`; // because in package.json we have - "proxy": "http://localhost:8001" - all we need is the endpoint
@@ -85,6 +150,5 @@ export default function useApplicationData(){
       .catch((err) => console.log(err));
   }, []);
 
-  return { state, setDay, bookInterview, cancelInterview }
+  return { state, setDay, bookInterview, cancelInterview };
 }
-

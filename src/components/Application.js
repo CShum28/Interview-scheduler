@@ -1,5 +1,4 @@
-import React, { useEffect, set } from "react";
-import axios from "axios";
+import React from "react";
 
 import "components/Application.scss";
 import DayList from "./DayList";
