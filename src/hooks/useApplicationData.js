@@ -9,17 +9,25 @@ export default function useApplicationData() {
     interviewers: {},
   });
 
-  let appointmentOfDays;
-
-  for (const day of state.days) {
-    if (state.day === day.name) {
-      appointmentOfDays = day.appointments;
-    }
-  }
-
   const updateSpots = (appointments) => {
+    // reminder that you should never change the initial state (ex. state.day, state.days, etc.) or anything
+    // always copy it first if you want to make changes
+    // copy, make changes, then copy the change over
+    let daysCopy = [ ...state.days ]
+    let daysIndex;
+    let appointmentOfDays;
     let spotCount = 0;
 
+    // loop through daysCopy array to find the appointments for the day
+    for (let i = 0; i < daysCopy.length; i++) {
+      if (state.day === daysCopy[i].name) {
+        appointmentOfDays = daysCopy[i].appointments;
+        daysIndex = i;
+        break;
+      }
+    }
+
+    // count the null spots for the appointments
     for (const appointment in appointments) {
       if (appointmentOfDays.includes(Number(appointment))) {
         if (appointments[appointment].interview === null) {
@@ -28,25 +36,10 @@ export default function useApplicationData() {
       }
     }
 
-    let dayUpdate = {};
+    //updates the spots inside of daysCopy
+    daysCopy[daysIndex].spots = spotCount
 
-    for (const day of state.days) {
-      if (state.day === day.name) {
-        dayUpdate = {
-          ...day,
-          spots: spotCount,
-        };
-      }
-    }
-
-    const dayIndex = dayUpdate.id - 1;
-    const newDays = [
-      ...state.days.slice(0, dayIndex),
-      dayUpdate,
-      ...state.days.slice(dayIndex + 1),
-    ];
-    
-    return newDays
+    return daysCopy
   };
 
   const setDay = (day) => setState((prev) => ({ ...prev, day }));
