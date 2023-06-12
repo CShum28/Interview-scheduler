@@ -7,7 +7,7 @@ import Show from "components/Appointment/Show";
 import Form from "components/Appointment/Form";
 import Confirm from "components/Appointment/Confirm";
 import Status from "components/Appointment/Status";
-import Error from 'components/Appointment/Error'
+import Error from "components/Appointment/Error";
 import useVisualMode from "hooks/useVisualMode";
 
 export default function Appointment(props) {
@@ -53,7 +53,7 @@ export default function Appointment(props) {
   };
 
   return (
-    <article className="appointment">
+    <article className="appointment" data-testid="appointment">
       <Header time={props.time} />
       {mode === EMPTY && <Empty onAdd={() => transition(CREATE)} />}
       {mode === CREATE && (
@@ -94,16 +94,10 @@ export default function Appointment(props) {
         />
       )}
       {mode === ERROR_SAVE && (
-        <Error 
-          message='Could not save appointment'
-          onClose={back}
-        />
+        <Error message="Could not save appointment" onClose={back} />
       )}
       {mode === ERROR_DELETE && (
-        <Error 
-          message='Could not delete appointment'
-          onClose={back}
-        />
+        <Error message="Could not delete appointment" onClose={back} />
       )}
     </article>
   );

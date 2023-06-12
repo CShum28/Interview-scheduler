@@ -36,7 +36,7 @@ export default function useApplicationData() {
       }
     }
 
-    //updates the spots inside of daysCopy
+    // updates the spots inside of daysCopy
     daysCopy[daysIndex].spots = spotCount
 
     return daysCopy
